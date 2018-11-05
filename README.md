@@ -1,7 +1,7 @@
 # Onderzoek OBA
 **Worden boeken minder populair?**
 
-## deelvragen:
+## Deelvragen:
 1. Zijn de gepubliceerde boeken in de loop der jaren verminderd?
 2. Worden boeken dunner tegenwoordig?
 3. Is er een toename in media publicatie?
