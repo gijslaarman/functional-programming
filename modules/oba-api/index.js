@@ -1,49 +1,53 @@
 const axios = require('axios')
-const env = require('dotenv').config()
-const queryString = require('query-string')
-const convert = require('xml-to-json-promise')
-const jp = require('jsonpath')
+const convert = require('xml-to-json-promise').xmlDataToJSON
+const chalk = require('chalk')
 
 module.exports = class OBA {
     constructor(options) {
-        this.publicKey = options.public,
-        this.secretKey = options.secret
+        this.key = options.public,
+        this.pages = {}
     }
 
-    get(endpoint, query, format) {
-        return new Promise((resolve, reject) => {
-            const baseUrl = 'https://zoeken.oba.nl/api/v1/'
-            query = '&' + queryString.stringify(query)
-            endpoint = endpoint + '/' + '?'
+    stringify(object) {
+        const keys = Object.keys(object)
+        const values = Object.values(object)
+        return keys.map((key, i) => `&${key}=${values[i]}`).join('')
+    }
 
-            const URL = baseUrl + endpoint + 'authorization=' + this.publicKey + query
-            
-            axios.get(URL)
-                .then(res => {
-                    return convert.xmlDataToJSON(res.data)
-                })
-                // .then(res => {
-                //     if (format.includes(',')) {
-                //         let resultArray = []
-                //         const formats = format.split(',').map(item => item.trim())
-                //         resultArray.push(formats.map(item => jp.query(res, `$..${item}`)))
+    getAll(endpoint, query, pages) {
+        const url = `https://zoeken.oba.nl/api/v1/${endpoint}/?authorization=${this.key}${this.stringify(query)}`
+        this.pages = pages
 
-                //         return results
-                //     } else {
-                //         return format ? jp.query(res, `$..${format}`) : res
-                //     }
-                // })
-                .then(res => {
-                    return resolve({
-                        data: res,
-                        url: URL,
-                    })
-                }).catch(err => {
-                    return reject({
-                        err: err,
-                        url: URL
-                    })
-                })
+        return this.getRequests(url)
+          .then(requests => {
+            return axios.all(requests)
+              .then(axios.spread((...responses) => {
+                const json = responses.map((res) => convert(res.data))
+                return Promise.all(json)
+              }))
+              .then(res => res.map(obj => obj.aquabrowser.results[0].result))
+              .then(res => {
+                return {
+                  data: [].concat(...res),
+                  url: url
+                }
+              })
+          })
+      }
+
+      getAmountOfRequests(url) {
+        return axios.get(url)
+          .then(res => convert(res.data))
+          .then(res => (Math.ceil(res.aquabrowser.meta[0].count[0] / this.pages.pagesize) + 1))
+      }
+      getRequests(url) {
+        return this.getAmountOfRequests(url).then(amount => {
+            let promises = []
+            amount > this.pages.maxpages ? amount = this.pages.maxpages : false
+            for (let i = this.pages.page; i < amount; i++) {
+                promises.push(axios.get(`${url}&page=${i}&pagesize=${this.pages.pagesize}`))
+            }
+            return promises
         })
     }
 }
