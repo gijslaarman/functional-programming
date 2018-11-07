@@ -1,8 +1,7 @@
 # Onderzoek OBA
-**Worden boeken minder populair?**
+**Wat voor effect heeft globalisering op de vertaling van boeken**
 
 ## Deelvragen:
-1. Zijn de gepubliceerde boeken in de loop der jaren verminderd?
-2. Worden boeken dunner tegenwoordig?
-3. Is er een toename in media publicatie?
-4. Hoeveel schrijvers publiceerde zijn/haar boek per jaar.
+1. Hoeveel boeken zijn er in de OBA die engels zijn per publicatie jaar.
+2. Hoeveel boeken zijn er van Engels naar Nederlands vertaald.
+3. Wat is het percentage buitenlandse boeken tegen over Nederlandse boeken.

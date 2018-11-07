@@ -3,6 +3,7 @@ const express = require('express')
 const env = require('dotenv').config()
 const app = express()
 const chalk = require('chalk')
+const d3 = require('d3')
 
 const client = new OBA({
     public: process.env.PUBLIC_KEY
@@ -11,7 +12,7 @@ const client = new OBA({
 const search = {
     endpoint: 'search',
     query: {
-        q: 'Type(book)',
+        q: 'dogs',
         facet: 'Type(book)',
         refine: true
     },
@@ -26,10 +27,10 @@ client.getAll(search.endpoint, search.query, search.pages)
     .then(response => {
         console.log(chalk.bgGreen(response.url)) // URL ok
 
-        let translatedBooks = [];
+        let results = [];
 
         response.data.map(book => {
-            translatedBooks.push(
+            results.push(
                 {   
                     title: book.titles[0].title[0]['_'],
                     pubYear: book.publication && book.publication[0].year && book.publication[0].year[0]['_'] ? book.publication[0].year[0]['_'] : null,
@@ -39,21 +40,22 @@ client.getAll(search.endpoint, search.query, search.pages)
             )
         })
 
-        let results = [];
-        
-        translatedBooks.forEach(book => {
+        let engToDutBooks = [];
+        results.forEach(book => {
             if (book.language === 'dut' && book.originalLang === 'eng') {
-                results.push(book)
+                engToDutBooks.push(book)
             }
         })
-        
-        // result.map(book => {
-        //     if (book.language === 'dut' && book['original-language'] === 'eng') {
-        //         translatedBooks.push(book)
-        //     }
-        // })
 
-        app.get('/', (req, res) => res.json(results)).listen(3000)
+        let englishBooks = [];
+        results.forEach(book => {
+            if (book.language === 'eng' && book.originalLang === null) {
+                englishBooks.push(book)
+            }
+        })
+
+        // app.get('/', (req, res) => res.send(d3)).listen(3000)
+        app.get('/', (req, res) => res.json(engToDutBooks)).listen(3000)
     })
     .catch(err => {
         if (err.err) {
