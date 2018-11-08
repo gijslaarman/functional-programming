@@ -14,11 +14,9 @@
     "chalk": "^2.4.1",
     "d3": "^5.7.0",
     "dotenv": "^6.1.0",
+    "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "jsonpath": "^1.0.0",
     "nodemon": "^1.18.5",
-    "query-string": "^6.2.0",
-    "xml-to-json-promise": "0.0.3",
-    "xml2js": "^0.4.19"
+    "xml-to-json-promise": "0.0.3"
   }
 }

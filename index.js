@@ -3,7 +3,7 @@ const express = require('express')
 const env = require('dotenv').config()
 const app = express()
 const chalk = require('chalk')
-const d3 = require('d3')
+const fs = require('fs')
 
 const client = new OBA({
     public: process.env.PUBLIC_KEY
@@ -12,15 +12,28 @@ const client = new OBA({
 const search = {
     endpoint: 'search',
     query: {
-        q: 'dogs',
+        q: 'dog',
         facet: 'Type(book)',
         refine: true
     },
     pages: {
         page: 1,
         pagesize: 20,
-        maxpages: 20
+        maxpages: 80
     }
+}
+
+sortByYear = array => {
+    return array.sort(
+        (a, b) => {
+            let keyA = a.pubYear,
+                keyB = b.pubYear
+
+            if(keyA < keyB) return -1
+            if(keyA > keyB) return 1
+            return 0
+        }
+    )
 }
 
 client.getAll(search.endpoint, search.query, search.pages)
@@ -54,8 +67,46 @@ client.getAll(search.endpoint, search.query, search.pages)
             }
         })
 
-        // app.get('/', (req, res) => res.send(d3)).listen(3000)
-        app.get('/', (req, res) => res.json(engToDutBooks)).listen(3000)
+        createData = (array, array2) => {
+            let json = []
+
+            for (let i = 2000; i <= 2018; i++) {
+                let books1 = [];
+                let books2 = [];
+
+                array.forEach(book => {
+                    if (Number(book.pubYear) === i) {
+                        books1.push(book)
+                    }
+                })
+
+                array2.forEach(book => {
+                    if (Number(book.pubYear) === i) {
+                        books2.push(book)
+                    }
+                })
+    
+                json.push({
+                    year: i,
+                    english: books1.length.toString(),
+                    englishToDutch: books2.length.toString()
+                })
+            }
+
+            return json
+        }
+
+        createJSON = (array, array2, filename) => {
+            let file = filename + '.json'
+            fs.writeFile(file, JSON.stringify(createData(array, array2)), 'utf8', () => { console.log('File: ' + file + ' created.')})
+        }
+
+        console.log(results.length)
+        createJSON(englishBooks, engToDutBooks, 'data')
+
+        return
+        app.get('/', (req,res) => res.json(data)).listen(3000)
+        // app.get('/', (req, res) => res.render('pages/index', {results: englishBooks})).listen(3000)
     })
     .catch(err => {
         if (err.err) {

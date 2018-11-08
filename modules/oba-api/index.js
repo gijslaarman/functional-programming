@@ -40,14 +40,29 @@ module.exports = class OBA {
           .then(res => convert(res.data))
           .then(res => (Math.ceil(res.aquabrowser.meta[0].count[0] / this.pages.pagesize) + 1))
       }
+
       getRequests(url) {
         return this.getAmountOfRequests(url).then(amount => {
-            let promises = []
             amount > this.pages.maxpages ? amount = this.pages.maxpages : false
-            for (let i = this.pages.page; i < amount; i++) {
-                promises.push(axios.get(`${url}&page=${i}&pagesize=${this.pages.pagesize}`))
-            }
-            return promises
+            let page = this.pages.page
+            let promises = [];
+
+            let promiseToSendAllData = new Promise( (resolve, reject) => {
+                function TimeoutApi(pages, url, promises) {
+                    if (pages.page > pages.maxpages) {
+                        resolve(promises) //array
+                    } else {
+                        console.log(`Resolving page no.${pages.page}`)
+                        promises.push(axios.get(`${url}&page=${pages.page}&pagesize=20`))
+                        pages.page++
+                        setTimeout(TimeoutApi, 500, pages, url, promises)
+                    }
+                }
+
+                TimeoutApi(this.pages, url, promises)
+            })
+
+            return promiseToSendAllData
         })
     }
 }
