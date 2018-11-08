@@ -165,7 +165,7 @@ createJSON(englishBooks, engToDutBooks, 'data') // Hier roepen we de twee arrays
 
 ## Credits
 Credits aan:
-[Dennis Wegereef](https://github.com/Denniswegereef)
+[Dennis Wegereef](https://github.com/Denniswegereef) &
 [Folkert-Jan v/d Pol](https://github.com/fjvdpol/)
 
 Zij hebben mij geholpen met het loopen door de API van de OBA, zodat ik meer dan 20 resultaten kreeg.
