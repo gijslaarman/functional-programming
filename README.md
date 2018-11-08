@@ -162,3 +162,10 @@ createJSON(englishBooks, engToDutBooks, 'data') // Hier roepen we de twee arrays
 
 #### D3 Resultaat
 [Insert Here]
+
+## Credits
+Credits aan:
+[Dennis Wegereef](https://github.com/Denniswegereef)
+[Folkert-Jan v/d Pol](https://github.com/fjvdpol/)
+
+Zij hebben mij geholpen met het loopen door de API van de OBA, zodat ik meer dan 20 resultaten kreeg.
