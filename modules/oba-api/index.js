@@ -1,6 +1,5 @@
 const axios = require('axios')
 const convert = require('xml-to-json-promise').xmlDataToJSON
-const chalk = require('chalk')
 
 module.exports = class OBA {
     constructor(options) {
@@ -14,48 +13,89 @@ module.exports = class OBA {
         return keys.map((key, i) => `&${key}=${values[i]}`).join('')
     }
 
+    get(endpoint, query, pages) {
+        const url = `https://zoeken.oba.nl/api/v1/${endpoint}/?authorization=${this.key}${this.stringify(query)}`
+        console.log(url)
+
+        axios.get(url)
+        .then(res => convert(res.data))
+        .then(res => {
+            return {
+                data: res,
+                url: url
+            }
+        })
+    }
+
     getAll(endpoint, query, pages) {
         const url = `https://zoeken.oba.nl/api/v1/${endpoint}/?authorization=${this.key}${this.stringify(query)}`
         this.pages = pages
 
         return this.getRequests(url)
-          .then(requests => {
-            return axios.all(requests)
-              .then(axios.spread((...responses) => {
-                const json = responses.map((res) => convert(res.data))
-                return Promise.all(json)
-              }))
-              .then(res => res.map(obj => obj.aquabrowser.results[0].result))
-              .then(res => {
+            .then(requests => {
                 return {
-                  data: [].concat(...res),
-                  url: url
+                    data: [].concat(...requests.data),
+                    url: url,
+                    failed: requests.failed
                 }
-              })
-          })
-      }
+            })
+        }
 
       getAmountOfRequests(url) {
         return axios.get(url)
           .then(res => convert(res.data))
-          .then(res => (Math.ceil(res.aquabrowser.meta[0].count[0] / this.pages.pagesize) + 1))
+          .then(res => {
+              return {
+                  amount: (Math.ceil(res.aquabrowser.meta[0].count[0] / this.pages.pagesize) + 1),
+                  rctx: res.aquabrowser.meta[0].rctx[0]
+              }
+          })
       }
 
       getRequests(url) {
-        return this.getAmountOfRequests(url).then(amount => {
-            amount > this.pages.maxpages ? amount = this.pages.maxpages : false
+        return this.getAmountOfRequests(url).then(helpers => {
+            helpers.amount > this.pages.maxpages ? helpers.amount = this.pages.maxpages : false
             let page = this.pages.page
+
+            // The builder array, this is the eventual data that gets send
             let promises = [];
+            let failedPages = [];
+            console.log(helpers.amount)
 
             let promiseToSendAllData = new Promise( (resolve, reject) => {
                 function TimeoutApi(pages, url, promises) {
-                    if (pages.page > pages.maxpages) {
-                        resolve(promises) //array
+                    if (pages.page > helpers.amount) {
+                        setTimeout(() => {
+                            resolve({data: promises, failed: failedPages})
+                        }, 1000)
                     } else {
                         console.log(`Resolving page no.${pages.page}`)
-                        promises.push(axios.get(`${url}&page=${pages.page}&pagesize=20`))
+
+                        axios.get(`${url}&page=${pages.page}&pagesize=20&rctx=${helpers.rctx}`)
+                        // If status code 200:
+                        .then(res => convert(res.data))
+                        .then(res => res.aquabrowser.results[0].result)
+                        .then(res => res.map(book => {
+                            let bookarray = [];
+
+                            bookarray.push({
+                                pubYear: book.publication && book.publication[0].year && book.publication[0].year[0]['_'] ? book.publication[0].year[0]['_'] : null,
+                                language: book.languages && book.languages[0] && book.languages[0].language && book.languages[0].language[0] ? book.languages[0].language[0]['_'] : null,
+                                originLang: book.languages && book.languages[0] && book.languages[0]['original-language'] ? book.languages[0]['original-language'][0]['_'] : null
+                            })
+
+                            return promises.push(bookarray)
+                        }))
+                        .catch(err => {
+                            let pageNumber = err.config.url.split('&')[4].split('=')[1]
+                            console.log(`Error: Failed to resolve page: ${pageNumber}`)
+                            return failedPages.push(pageNumber)
+                        })
+
+                        // If status code != 200, go on to the next request or retry.
+
                         pages.page++
-                        setTimeout(TimeoutApi, 500, pages, url, promises)
+                        setTimeout(TimeoutApi, 1100, pages, url, promises)
                     }
                 }
 
