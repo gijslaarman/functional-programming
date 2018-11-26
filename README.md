@@ -161,7 +161,13 @@ createJSON(englishBooks, engToDutBooks, 'data') // Hier roepen we de twee arrays
 ```
 
 #### D3 Resultaat
-[Insert Here]
+![](preview.png)
+
+Ook al ben ik veel opgeschoten in D3 was een stacked barchart maken weer een hele uitdaging.
+Ik heb veel opgezocht naar artikelen en voorbeelden, maar vele waren voor d3. Na uren worstelen ben ik op dit voorbeeld gekomen: [D3js v4 Stacked Bar Chart - with Tooltip Hover](https://bl.ocks.org/mjfoster83/7c9bdfd714ab2f2e39dd5c09057a55a0).
+Toen was het aardig snel gefixt, ook omdat ik wat meer begreep wat er stond (stacks ehem).
+
+Maar om de data relatief te laten zien per jaar moest ik alleen de talen eruit filteren die ik wilden hebben. Dus tijdens het loopen van de data wordt er d.m.v. een if-statement check gekeken of de taal juist was anders werd er gereturned. Daarna heb ik nog een keer door de data heen gemapped om daar per jaar de talen door het total amount te delen en maal 100 te doen (simpel rekenen). Dit kwam in een nieuw dataset/variabel: `relatives` dit was de relatieve data die ik nodig had. Met die data had ik de barchart geplot.
 
 ## Credits
 Credits aan:

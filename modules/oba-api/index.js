@@ -27,9 +27,27 @@ module.exports = class OBA {
         })
     }
 
+    getFailed(endpoint, query, failedPages) {
+        const url = `https://zoeken.oba.nl/api/v1/${endpoint}/?authorization=${this.key}${this.stringify(query)}`
+        this.failedPages = failedPages
+
+        return this.getAmountOfRequests(url).then(helpers => {
+            helpers.amount = failedPages.length
+
+            let promiseToSendFailedPages = new Promise((resolve, reject) => {
+
+            })
+        })
+        failedPages.forEach(page => {
+            axios.get(`${url}&page=${page}&pagesize=20&rctx=${helpers.rctx}`)
+        })
+    }
+
     getAll(endpoint, query, pages) {
         const url = `https://zoeken.oba.nl/api/v1/${endpoint}/?authorization=${this.key}${this.stringify(query)}`
         this.pages = pages
+        this.pages.maxpages = this.pages.page + this.pages.maxpages - 1
+        console.log(`Starting from page ${this.pages.page}, ending at page ${this.pages.maxpages}`)
 
         return this.getRequests(url)
             .then(requests => {
@@ -55,12 +73,10 @@ module.exports = class OBA {
       getRequests(url) {
         return this.getAmountOfRequests(url).then(helpers => {
             helpers.amount > this.pages.maxpages ? helpers.amount = this.pages.maxpages : false
-            let page = this.pages.page
 
             // The builder array, this is the eventual data that gets send
-            let promises = [];
-            let failedPages = [];
-            console.log(helpers.amount)
+            let promises = []
+            let failedPages = []
 
             let promiseToSendAllData = new Promise( (resolve, reject) => {
                 function TimeoutApi(pages, url, promises) {

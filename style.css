@@ -1,0 +1,31 @@
+*, *:before, *:after {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-family: sans-serif;
+}
+
+.svg-wrapper {
+    display: flex;
+    justify-content: center;
+    background-color: whitesmoke;
+    padding: 50px;
+}
+
+.intro {
+    padding: 20px 80px 40px 80px;
+}
+
+h1 {
+    margin: 20px 0;
+}
+
+.x.axis text {
+    transform: translate(-14px, 9px) rotate(-45deg);
+}
+
+.x.axis text.pubyear {
+    transform: translate(20px, -5px) rotate(0);
+}

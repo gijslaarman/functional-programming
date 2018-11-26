@@ -2,51 +2,28 @@
 <html>
 <head>
     <title>D3 Grafiek</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p>Hello!</p>
+    <div class="intro">
+        <h1>Globalisering van Nederlandse boeken</h1>
+        <p>Dit zijn Nederlandse getaalde boeken (~40.000) die in de OBA staan met hun originele afkomst:
+            <ul>
+                <li>Duits: ger</li>
+                <li>Frans: fra</li>
+                <li>Engels: eng</li>
+                <li>Nederlands: dut</li>
+            </ul>
+        </p>
+        <br>
+        <p>Alle boeken zijn ingedeeld per publicatie jaar en worden relatief met elkaar vergeleken.</p>
+    </div>
+
+    <div class="svg-wrapper">
+        <div id="chart"></div>
+    </div>
+
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script>
-        // var margin = {top: 20, right: 20, bottom: 70, left: 40},
-        // width = 600 - margin.left - margin.right,
-        // height = 300 - margin.top - margin.bottom;
-    
-        // // Parse the date / time
-        // var	parseDate = d3.time.format("%Y-%m").parse;
-    
-        // var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
-    
-        // var y = d3.scale.linear().range([height, 0]);
-    
-        // var xAxis = d3.svg.axis()
-        //     .scale(x)
-        //     .orient("bottom")
-        //     .tickFormat(d3.time.format("%Y-%m"));
-    
-        // var yAxis = d3.svg.axis()
-        //     .scale(y)
-        //     .orient("left")
-        //     .ticks(10);
-    
-        // var svg = d3.select("body").append("svg")
-        //     .attr("width", width + margin.left + margin.right)
-        //     .attr("height", height + margin.top + margin.bottom)
-        // .append("g")
-        //     .attr("transform", 
-        //         "translate(" + margin.left + "," + margin.top + ")");
-    
-        // draw = (data) => {
-    
-        // }
-    
-        console.log(data)
-        d3.json('http://localhost:8080/api', function(error, data) {
-            if (error) throw error
-    
-            console.log(data)
-        })
-    </script>
+    <script src="d3.js"></script>
 </body>
 </html>
-
-
